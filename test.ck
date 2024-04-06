@@ -1,33 +1,77 @@
 // Some ideas:
-// Variables to control: tremolo speed, fundamental freq,
+// Variables to control: fundamental freq,
 // relative loudness of partials (each coming from a different channel)
 
 // # of channels
 2 => int CHANNELS;
+// which mouse
+1 => int device;
 
-// array of triangle oscillators
 SinOsc oscs[CHANNELS];
+Envelope envs[CHANNELS];
 
-// loop to connect them all
 for( int i; i < CHANNELS; i++ )
 {
     // connect
-    oscs[i] => dac.chan(i);
+    oscs[i] => envs[i] => dac.chan(i);
     .15 => oscs[i].gain;
+    // attack
+    10::ms => envs[i].duration;
+    .5 => envs[i].gain;
 }
 
-// infinite time loop
+// HID input and HID message
+Hid hi;
+HidMsg msg;
+
+// try
+if( !hi.openMouse( device ) ) me.exit();
+<<< "mouse '" + hi.name() + "' ready...", "" >>>;
+
 220 => int fund;
+0.0 => float x;
+0.0 => float y;
 0.0 => float t;
 while( true )
 {
-    // modulate
-    for( int i; i < CHANNELS; i++ ) {
-        // Set frequencies to integer multiples (harmonics) of fundamental
-        fund * (i + 1) + ( Math.sin(t) + 1.0 ) * 10.0 => oscs[i].sfreq;
-    }
-    t + .04 => t;
+    // wait on event
+    hi => now;
+    
+    // loop over messages
+    while( hi.recv( msg ) )
+    {
+        if( msg.isMouseMotion() )
+        {
+            msg.deltaX * .001 + x => x;
+            //msg.deltaY * .001 + y => y;
+            set( x );
 
-    // advance time
-    1::ms => now;
+        }
+        else if( msg.isButtonDown() )
+        {
+            for( int i; i < CHANNELS; i++ )
+            {
+                envs[i].keyOn();
+            }
+        }
+
+        else if( msg.isButtonUp() )
+        {
+            for( int i; i < CHANNELS; i++ )
+            {
+                envs[i].keyOff();
+            }
+        }
+    }
 }
+
+fun void set( float x )
+{
+    for( int i; i < CHANNELS; i++ ) 
+    {
+        // Set frequencies to integer multiples (harmonics) of fundamental determined by mouse x
+        (220 + (x * 1000)) * (i + 1) => oscs[i].sfreq;
+    }
+}
+
+// Next: have y modify gain on partials. At 0 delta they should be silent, then louder and louder with increase y
