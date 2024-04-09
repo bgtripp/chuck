@@ -44,7 +44,7 @@ while( true )
         if( msg.isMouseMotion() )
         {
             msg.deltaX * .001 + x => x;
-            msg.deltaY * .0001 + y => y;
+            msg.deltaY * .001 + y => y;
             set( x, y );
 
         }
@@ -71,11 +71,11 @@ fun void set( float x, float y )
     for( int i; i < CHANNELS; i++ ) 
     {
         // Set frequencies to integer multiples (harmonics) of fundamental determined by mouse x
-        Math.max((220 + (x * 1000)) * (i + 1), 0) => oscs[i].sfreq;
+        Math.max((220 + (x * 1000)) * (i + 1), 0) => oscs[i].freq;
         if( i > 0)
         {
             Math.min(Math.max(0.15 + y * 10, 0), 1) => oscs[i].gain;
         }
     }
-    <<< oscs[0].gain() + " " + oscs[1].gain() >>>;
+    <<< "fundamental: " + oscs[0].freq()  + "hz, harmonics gain: " + oscs[1].gain() >>>;
 }
