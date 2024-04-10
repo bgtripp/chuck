@@ -74,7 +74,7 @@ fun void set( float x, float y )
         Math.max((220 + (x * 1000)) * (i + 1), 0) => oscs[i].freq;
         if( i > 0)
         {
-            Math.min(Math.max(0.15 + y * 10, 0), 0.5) => oscs[i].gain;
+            Math.min(Math.max(y * 10, 0), 0.5) => oscs[i].gain;
         }
     }
     <<< "fundamental: " + oscs[0].freq()  + "hz, harmonics gain: " + oscs[1].gain() >>>;
