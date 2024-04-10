@@ -3,7 +3,7 @@
 // relative loudness of partials (each coming from a different channel)
 
 // # of channels
-2 => int CHANNELS;
+6 => int CHANNELS;
 // which mouse
 0 => int device;
 
