@@ -9,7 +9,7 @@
 // which mouse
 0 => int device;
 
-TriOsc oscs[OSCILLATORS];
+SinOsc oscs[OSCILLATORS];
 Envelope envs[OSCILLATORS];
 
 for( int i; i < OSCILLATORS; i++ )
