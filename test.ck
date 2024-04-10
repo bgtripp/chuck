@@ -4,16 +4,18 @@
 
 // # of channels
 6 => int CHANNELS;
+// # of oscillators
+12 => int OSCILLATORS;
 // which mouse
 0 => int device;
 
-TriOsc oscs[CHANNELS];
-Envelope envs[CHANNELS];
+TriOsc oscs[OSCILLATORS];
+Envelope envs[OSCILLATORS];
 
-for( int i; i < CHANNELS; i++ )
+for( int i; i < OSCILLATORS; i++ )
 {
     // connect
-    oscs[i] => envs[i] => dac.chan(i);
+    oscs[i] => envs[i] => dac.chan(i % CHANNELS);
     0.0 => oscs[i].gain;
     // attack
     150::ms => envs[i].duration;
@@ -46,7 +48,7 @@ while( true )
         }
         else if( msg.isButtonDown() )
         {
-            for( int i; i < CHANNELS; i++ )
+            for( int i; i < OSCILLATORS; i++ )
             {
                 envs[i].target(1);
             }
@@ -59,7 +61,7 @@ while( true )
 
         else if( msg.isButtonUp() )
         {
-            for( int i; i < CHANNELS; i++ )
+            for( int i; i < OSCILLATORS; i++ )
             {
                 envs[i].target(0);
             }
@@ -69,7 +71,7 @@ while( true )
 
 fun void set( float x, float y )
 {
-    for( int i; i < CHANNELS; i++ ) 
+    for( int i; i < OSCILLATORS; i++ ) 
     {
         // Set frequencies to integer multiples (harmonics) of fundamental determined by mouse x
         Math.max(((x * 500)) * (i + 1), 0) => oscs[i].freq;
@@ -77,7 +79,7 @@ fun void set( float x, float y )
         {
             Math.min(y * 2, 1.0) => oscs[i].gain;
         }
-        1 => oscs[loudHarm % CHANNELS].gain;
+        1 => oscs[loudHarm % OSCILLATORS].gain;
     }
     <<< "fundamental: " + oscs[0].freq()  + "hz, harmonics gain: " + oscs[1].gain() >>>;
 }
