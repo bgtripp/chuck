@@ -16,7 +16,7 @@ for( int i; i < CHANNELS; i++ )
     oscs[i] => envs[i] => dac.chan(i);
     0.0 => oscs[i].gain;
     // attack
-    10::ms => envs[i].duration;
+    150::ms => envs[i].duration;
     .5 => envs[i].gain;
 }
 // Initialize fundamental gain
@@ -52,7 +52,7 @@ while( true )
         {
             for( int i; i < CHANNELS; i++ )
             {
-                envs[i].keyOn();
+                envs[i].target(1);
             }
         }
 
@@ -60,7 +60,7 @@ while( true )
         {
             for( int i; i < CHANNELS; i++ )
             {
-                envs[i].keyOff();
+                envs[i].target(0);
             }
         }
     }
