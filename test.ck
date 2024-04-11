@@ -74,7 +74,7 @@ fun void set( float x, float y )
     for( int i; i < OSCILLATORS; i++ ) 
     {
         // Set frequencies to integer multiples (harmonics) of fundamental determined by mouse x
-        Math.max(((x * 500)) * (i + 1), 0) => oscs[i].freq;
+        (x * 500) * (i + 1) => oscs[i].freq;
         if( i != 0 && i != loudHarm )
         {
             Math.min(y * 2, 1.0) => oscs[i].gain;
