@@ -6,30 +6,33 @@ SinOsc s => JCRev r => dac;
 .1 => r.mix;
 220 => s.sfreq;
 // ms between pulses
-200 => int period;
+10 => int pulse;
 
 
 // destination host name
 "localhost" => string hostname;
 // destination port number
-6449 => int port;
+int ports[2];
+6449 => ports[0];
+6459 => ports[1];
 
 // sender object
-OscOut xmit;
+OscOut xmit[2];
 
 // aim the transmitter at destination
-xmit.dest( hostname, port );
+for ( int i; i < xmit.size(); i++ )
+{
+  xmit[i].dest( hostname, ports[i] );
+}
 
 // infinite time loop
 while( true )
 {
-    // start the message...
-    xmit.start( "/time" );
-    period => xmit.add;
-    xmit.send();
-
-    0.5 => s.gain;
-    period::ms => now;
-    0.0 => s.gain;
-    period::ms => now;
+  for ( int i; i < xmit.size(); i++ )
+  {
+    xmit[i].start( "/pulse" );
+    pulse => xmit[i].add;
+    xmit[i].send();
+    pulse::ms => now;
+  }
 }

@@ -10,10 +10,23 @@ SinOsc s => JCRev r => dac;
 OscIn oin;
 // create our OSC message
 OscMsg msg;
-// use port 6449 (or whatever)
-6449 => oin.port;
+
+// ms between largest period
+600 => int period;
+1 => int subdiv;
+
+if( me.args() > 1 ) 
+{
+  me.arg(0) => Std.atoi => oin.port;
+  me.arg(1) => Std.atoi => subdiv;
+} else {
+  <<< "Error: command line args invalid" >>>;
+}
+
 // create an address in the receiver, expect an int
-oin.addAddress( "/time, i" );
+oin.addAddress( "/pulse, i" );
+
+0 => int counter;
 
 // infinite event loop
 while( true )
@@ -24,9 +37,19 @@ while( true )
     // grab the next message from the queue. 
     while( oin.recv(msg) )
     { 
-      0.5 => s.gain;
-      msg.getInt(0)::ms => now;
-      0.0 => s.gain;
-      msg.getInt(0)::ms => now;
+      counter + msg.getInt(0) => counter;
+
+      if ( counter == period )
+      {
+        0 => counter;
+      }
+
+      if ( counter % ( period / subdiv ) == 0 )
+      {
+        0.5 => s.gain;
+        100::ms => now;
+        0.0 => s.gain;
+        100::ms => now;
+      }
     }
 }
