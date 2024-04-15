@@ -1,38 +1,49 @@
 // Test sender for syncing time
 
 // patch
-SinOsc s => JCRev r => dac;
+SinOsc s => dac;
 .0 => s.gain;
-.1 => r.mix;
 220 => s.sfreq;
 // ms between pulses
-10 => int pulse;
+100 => int pulse;
 
 
 // destination host name
 "localhost" => string hostname;
 // destination port number
-int ports[2];
-6449 => ports[0];
-6459 => ports[1];
+4444 => int port;
 
 // sender object
-OscOut xmit[2];
+OscOut xmit;
 
 // aim the transmitter at destination
-for ( int i; i < xmit.size(); i++ )
-{
-  xmit[i].dest( hostname, ports[i] );
-}
+xmit.dest( hostname, port );
 
-// infinite time loop
-while( true )
+fun void sendPulse()
 {
-  for ( int i; i < xmit.size(); i++ )
+  while( true )
   {
-    xmit[i].start( "/pulse" );
-    pulse => xmit[i].add;
-    xmit[i].send();
+    xmit.start( "/pulse" );
+    pulse => xmit.add;
+    xmit.send();
     pulse::ms => now;
   }
 }
+
+fun void boop()
+{
+  while( true )
+  { 
+    0.5 => s.gain;
+    pulse::ms => now;
+    0.1 => s.gain;
+    pulse::ms => now;
+  }
+}
+
+spork ~ sendPulse();
+spork ~ boop();
+   
+// infinite time loop - to keep child shreds around
+while( true )
+      1::second => now;
