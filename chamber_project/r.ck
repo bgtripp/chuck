@@ -14,10 +14,13 @@ if( me.args() )
 {
   me.arg(0) => Std.atoi => oin.port;
 } else {
-  <<< "Error: command line args invalid" >>>;
+  <<< "Error: must specify port." >>>;
 }
 
-3 => int subdiv;
+if( me.args() > 1 )
+{
+  me.arg(1) => Std.atoi => s.sfreq;
+}
 
 // create an address in the receiver, expect an int
 oin.addAddress( "/pulse, i" );
@@ -30,11 +33,10 @@ while( true )
 
     // grab the next message from the queue. 
     while( oin.recv(msg) )
-    { 
-      msg.getInt(0) => int pulse;
+    {
       0.5 => s.gain;
-      pulse::ms => now;
-      0.1 => s.gain;
-      pulse::ms * ( subdiv + 1 ) => now;
+      100::ms => now;
+      0.0 => s.gain;
+      100::ms => now;
     }
 }

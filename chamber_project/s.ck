@@ -1,49 +1,30 @@
 // Test sender for syncing time
 
-// patch
-SinOsc s => dac;
-.0 => s.gain;
-220 => s.sfreq;
-// ms between pulses
-100 => int pulse;
-
-
 // destination host name
 "localhost" => string hostname;
 // destination port number
-4444 => int port;
+int ports[2];
+4444 => ports[0];
+5555 => ports[1];
+400 => int pulse;
 
 // sender object
 OscOut xmit;
 
 // aim the transmitter at destination
-xmit.dest( hostname, port );
-
-fun void sendPulse()
+for ( int i; i < xmit.size(); i++ )
 {
-  while( true )
-  {
-    xmit.start( "/pulse" );
-    pulse => xmit.add;
-    xmit.send();
-    pulse::ms => now;
-  }
+  xmit[i].dest( hostname, ports[i] );
 }
 
-fun void boop()
-{
-  while( true )
-  { 
-    0.5 => s.gain;
-    pulse::ms => now;
-    0.1 => s.gain;
-    pulse::ms => now;
-  }
-}
-
-spork ~ sendPulse();
-spork ~ boop();
-   
-// infinite time loop - to keep child shreds around
+// infinite time loop
 while( true )
-      1::second => now;
+{
+  for ( int i; i < xmit.size(); i++ )
+  {
+    xmit[i].start( "/pulse" );
+    pulse => xmit[i].add;
+    xmit[i].send();
+  }
+  pulse::ms => now;
+}
