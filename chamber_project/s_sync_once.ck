@@ -1,15 +1,18 @@
 // Send one message for syncing
 
+// Number of receiving programs
+4 => int N_RECEIVERS;
 // destination host name
 "localhost" => string hostname;
 // destination port number
-int ports[2];
-4444 => ports[0];
-5555 => ports[1];
-400 => int pulse;
+int ports[N_RECEIVERS];
+for ( int i; i < N_RECEIVERS; i++ )
+{
+  (i + 1) * 1111 => ports[i];
+}
 
 // sender object
-OscOut xmit[2];
+OscOut xmit[N_RECEIVERS];
 
 // aim the transmitter at destination
 for ( int i; i < xmit.size(); i++ )
@@ -22,4 +25,3 @@ for ( int i; i < xmit.size(); i++ )
   xmit[i].start( "/sync" );
   xmit[i].send();
 }
-

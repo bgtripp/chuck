@@ -5,6 +5,8 @@ SinOsc s => dac;
 .0 => s.gain;
 440 => s.sfreq;
 
+2 => int d;
+
 // create our OSC receiver
 OscIn oin;
 // create our OSC message
@@ -22,6 +24,11 @@ if( me.args() > 1 )
   me.arg(1) => Std.atoi => s.sfreq;
 }
 
+if( me.args() > 2 )
+{
+  me.arg(2) => Std.atoi => d;
+}
+
 // create an address in the receiver, expect an int
 oin.addAddress( "/sync" );
 
@@ -29,15 +36,15 @@ oin => now;
 
 if ( oin.recv(msg) )
 {
-  boop();
+  boop(d);
 }
 
-fun void boop() {
+fun void boop(int d) {
   while( true )
   {
     0.5 => s.gain;
     100::ms => now;
     0.0 => s.gain;
-    100::ms => now;
+    ((d - 1) * 100)::ms => now;
   }
 }
