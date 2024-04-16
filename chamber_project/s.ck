@@ -1,20 +1,12 @@
 // Test sender for syncing time
 
-// patch
-SinOsc s => JCRev r => dac;
-.0 => s.gain;
-.1 => r.mix;
-220 => s.sfreq;
-// ms between pulses
-10 => int pulse;
-
-
 // destination host name
 "localhost" => string hostname;
 // destination port number
 int ports[2];
-6449 => ports[0];
-6459 => ports[1];
+4444 => ports[0];
+5555 => ports[1];
+400 => int pulse;
 
 // sender object
 OscOut xmit[2];
@@ -33,6 +25,6 @@ while( true )
     xmit[i].start( "/pulse" );
     pulse => xmit[i].add;
     xmit[i].send();
-    pulse::ms => now;
   }
+  pulse::ms => now;
 }
