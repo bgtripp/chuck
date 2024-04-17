@@ -2,29 +2,34 @@
 
 // Array of file path for first voice
 [
-  "Droplets_tuned/d.aif", 
+  "Droplets_tuned/Low_c.aif",
+  "Droplets_tuned/d.aif",
+  "Droplets_tuned/e.aif",
+  "Droplets_tuned/f.aif",
+  "Droplets_tuned/g.aif",
   "Droplets_tuned/a.aif", 
-  "Droplets_tuned/g.aif", 
+  "Droplets_tuned/b.aif",
   "Droplets_tuned/high_c.aif"
 ] @=> string files[];
 
 // Patch
-SndBuf buf[files.size()] => Gain feedback => Delay delay => NRev reverb => dac;
+SndBuf buf[files.size()] => Gain gain => Delay delay => NRev reverb => dac;
 for (int i; i < files.size(); i++) {
   0.0 => buf[i].gain;
 }
+// Multiples for each buf's polyrhythm
+[2, 3, 5, 7, 9, 11, 13, 17] @=> int d[];
 
 // Delay Settings
 .75::second => delay.max => delay.delay;
-// set feedback
-.5 => feedback.gain;
+// set universal gain
+.5 => gain.gain;
 // set effects mix
 .75 => delay.gain;
 
 // Reverb Settings
 0.1 => reverb.mix;
 
-[2, 3, 5, 7] @=> int d[];
 0 => int count;
 1000 => int pulse;
 100 => int holdLength;
@@ -64,7 +69,6 @@ fun void soundLoop() {
       if ( count % d[i] == 0)
       {
         spork ~ boop(i);
-        <<< "played " + i >>>;
       }
     }
 
@@ -75,7 +79,7 @@ fun void soundLoop() {
 
 fun void boop(int i) {
     files[i] => buf[i].read;   // Load the current file
-    1.0 => buf[i].gain;
+    Math.random2f(0.3, 1) => buf[i].gain;
     buf[i].pos(0);
     buf[i].play();
     holdLength::ms => now;
