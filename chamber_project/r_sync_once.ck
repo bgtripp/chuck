@@ -61,7 +61,7 @@ for (int i; i < files.size(); i++) {
 // Multiples for each buf's polyrhythm
 [17, 13, 11, 9, 7, 5, 3, 2] @=> int d[];
 // Switches for Droplets
-3 => int foot_switch;
+0 => int foot_switch;
 
 // Delay Settings
 .75::second => delay.max => delay.delay;
