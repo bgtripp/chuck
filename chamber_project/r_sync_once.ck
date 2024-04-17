@@ -5,7 +5,9 @@ SinOsc s => dac;
 .0 => s.gain;
 440 => s.sfreq;
 
-2 => int d;
+1 => int d;
+1000 => int pulse;
+100 => int holdLength;
 
 // create our OSC receiver
 OscIn oin;
@@ -30,21 +32,45 @@ if( me.args() > 2 )
 }
 
 // create an address in the receiver, expect an int
-oin.addAddress( "/sync" );
+oin.addAddress( "/sync, i" );
 
+fun void update() {
+  while( true )
+  {
+    oin => now;
+
+    while ( oin.recv(msg) )
+    {
+      setPulse(msg.getInt(0));
+    }
+  }
+}
+
+fun void boop() {
+  while( true )
+  {
+    0.5 => s.gain;
+    holdLength::ms => now;
+    0.0 => s.gain;
+    ((pulse * d) - holdLength)::ms => now;
+  }
+}
+
+fun void setPulse(int bpm)
+{
+  60000 / bpm => pulse;
+}
+
+spork ~ update();
+
+// Wait for initial sync
 oin => now;
 
 if ( oin.recv(msg) )
 {
-  boop(d);
+  setPulse(msg.getInt(0));
+  spork ~ boop();
 }
 
-fun void boop(int d) {
-  while( true )
-  {
-    0.5 => s.gain;
-    100::ms => now;
-    0.0 => s.gain;
-    ((d - 1) * 100)::ms => now;
-  }
-}
+while( true )
+  1::second => now;

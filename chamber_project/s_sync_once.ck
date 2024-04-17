@@ -1,5 +1,11 @@
 // Send one message for syncing
 
+100 => int pulse;
+if( me.args() ) 
+{
+  me.arg(0) => Std.atoi => pulse;
+}
+
 // Number of receiving programs
 4 => int N_RECEIVERS;
 // destination host name
@@ -23,5 +29,6 @@ for ( int i; i < xmit.size(); i++ )
 for ( int i; i < xmit.size(); i++ )
 {
   xmit[i].start( "/sync" );
+  pulse => xmit[i].add;
   xmit[i].send();
 }
