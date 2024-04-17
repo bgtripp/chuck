@@ -1,10 +1,13 @@
 // Send one message for syncing
 
+// HID input and HID message
+Hid hi;
+HidMsg msg;
+3 => int device;
+
+if( !hi.openKeyboard( device ) ) me.exit();
+
 100 => int pulse;
-if( me.args() ) 
-{
-  me.arg(0) => Std.atoi => pulse;
-}
 
 // Number of receiving programs
 4 => int N_RECEIVERS;
@@ -26,9 +29,27 @@ for ( int i; i < xmit.size(); i++ )
   xmit[i].dest( hostname, ports[i] );
 }
 
-for ( int i; i < xmit.size(); i++ )
+// infinite event loop
+while( true )
 {
-  xmit[i].start( "/sync" );
-  pulse => xmit[i].add;
-  xmit[i].send();
+    // wait on event
+    hi => now;
+
+    // get one or more messages
+    while( hi.recv( msg ) )
+    {
+        // check for action type
+        if( msg.isButtonDown() )
+        {
+          for ( int i; i < xmit.size(); i++ )
+          {
+            xmit[i].start( "/sync" );
+            if ( 29 < msg.which && msg.which < 40 )
+            {
+              100 * (msg.which - 29) => xmit[i].add;
+            } 
+            xmit[i].send();
+          }
+        }
+    }
 }
