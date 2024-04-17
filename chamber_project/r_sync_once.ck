@@ -1,7 +1,7 @@
 // Test receiver for syncing time
 
-1000 => MAX_TEMPO;
-100 => MIN_TEMPO;
+1000 => int MAX_TEMPO;
+100 => int MIN_TEMPO;
 // deadzone
 0 => float DEADZONE;
 // which joystick
@@ -14,7 +14,7 @@ Hid trak;
 HidMsg msg;
 
 // open joystick 0, exit on fail
-if( !trak.openJoystick( device ) ) me.exit();
+//if( !trak.openJoystick( device ) ) me.exit();
 
 // print
 <<< "joystick '" + trak.name() + "' ready", "" >>>;
@@ -53,7 +53,7 @@ spork ~ gametrak();
 ] @=> string files[];
 
 // Boop Patch
-SndBuf buf[files.size()] => Gain gain => Delay delay => NRev reverb => dac;
+SndBuf buf[files.size()] => Gain gain => Delay delay => NRev reverb => LPF lp => dac;
 for (int i; i < files.size(); i++) {
   files[i] => buf[i].read;
   0.0 => buf[i].gain;
@@ -79,7 +79,7 @@ for (int i; i < 2; i++)
 {
   rainBuf[i] => rainGain[i] => dynos[i] => dac;
   dynos[i].compress();
-  0.5 => rainGain[i].gain;
+  0.3 => rainGain[i].gain;
   "rain_thunder.wav" => rainBuf[i].read;
 }
 
@@ -97,7 +97,7 @@ for (int i; i < 2; i++)
 // create our OSC receiver
 OscIn oin;
 // create our OSC message
-OscMsg msg;
+OscMsg oscmsg;
 
 if( me.args() ) 
 {
@@ -114,9 +114,9 @@ fun void update() {
   {
     oin => now;
 
-    while ( oin.recv(msg) )
+    while ( oin.recv(oscmsg) )
     {
-      setPulse(msg.getInt(0));
+      setPulse(oscmsg.getInt(0));
     }
   }
 }
@@ -171,39 +171,14 @@ spork ~ rainLoop();
 // Wait for initial sync
 oin => now;
 
-if ( oin.recv(msg) )
+if ( oin.recv(oscmsg) )
 {
-  setPulse(msg.getInt(0));
+  setPulse(oscmsg.getInt(0));
   spork ~ soundLoop();
 }
 
 while( true ) 
   1::second => now;
-
-
-// gametrack loop
-while( true )
-{
-    // print 6 continuous axes -- XYZ values for left and right
-    <<< "axes:", gt.axis[0],gt.axis[1],gt.axis[2],
-    gt.axis[3],gt.axis[4],gt.axis[5] >>>;
-    
-    // gametrak left horrizontal will handle cutoff frequency
-    // Read the Gametrak axis value (0 to 1)
-    (gt.axis[3] + 1) / 2 => float left_pull;
-    
-    // Map the left_pull value to the frequency range
-    setPulse((leftPull * (MAX_TEMPO - MINTEMPO)) + minFreq);
-    
-    // gametrak right horrizontal will handle cutoff frequency
-    (gt.axis[6] + 1) / 2 => float right_pull;
-    
-    // Map the left_pull value to the gain
-    right_pull => gain; 
-    
-    
-}
-
 
 // gametrack handling
 fun void gametrak()
@@ -257,6 +232,23 @@ fun void gametrak()
             {
                 <<< "button", msg.which, "up" >>>;
             }
+            // print 6 continuous axes -- XYZ values for left and right
+            <<< "axes:", gt.axis[0],gt.axis[1],gt.axis[2],
+            gt.axis[3],gt.axis[4],gt.axis[5] >>>;
+            
+            // gametrak left horrizontal will handle cutoff frequency
+            // Read the Gametrak axis value (0 to 1)
+            (gt.axis[3] + 1) / 2 => float left_pull;
+            
+            // Map the left_pull value to the frequency range
+            Std.ftoi(left_pull * (MAX_TEMPO - MIN_TEMPO) + MIN_TEMPO) => int intpull;
+            setPulse(intpull);
+            
+            // gametrak right horrizontal will handle cutoff frequency
+            (gt.axis[6] + 1) / 2 => float right_freq;
+            // Map the left_pull value to the gain
+            right_freq => gain.gain; 
+            right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
         }
     }
 }
