@@ -3,7 +3,7 @@
 // HID input and HID message
 Hid hi;
 HidMsg msg;
-1 => int device;
+0 => int device;
 
 if( !hi.openKeyboard( device ) ) me.exit();
 
