@@ -18,7 +18,9 @@ for (int i; i < files.size(); i++) {
   0.0 => buf[i].gain;
 }
 // Multiples for each buf's polyrhythm
-[2, 3, 5, 7, 9, 11, 13, 17] @=> int d[];
+[17, 13, 11, 9, 7, 5, 3, 2] @=> int d[];
+// Switches for Droplets
+3 => int switch;
 
 // Delay Settings
 .75::second => delay.max => delay.delay;
@@ -66,7 +68,7 @@ fun void soundLoop() {
   {
     for (int i; i < d.size(); i++)
     {
-      if ( count % d[i] == 0)
+      if ( switch > i && count % d[i] == 0)
       {
         spork ~ boop(i);
       }
