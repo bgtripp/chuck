@@ -52,9 +52,10 @@ spork ~ gametrak();
   "Droplets_tuned/high_c.aif"
 ] @=> string files[];
 
-// Patch
+// Boop Patch
 SndBuf buf[files.size()] => Gain gain => Delay delay => NRev reverb => dac;
 for (int i; i < files.size(); i++) {
+  files[i] => buf[i].read;
   0.0 => buf[i].gain;
 }
 // Multiples for each buf's polyrhythm
@@ -68,6 +69,19 @@ for (int i; i < files.size(); i++) {
 .5 => gain.gain;
 // set effects mix
 .75 => delay.gain;
+
+// Rain Patch
+SndBuf rainBuf[2];
+Gain rainGain[2];
+Dyno dynos[2];
+
+for (int i; i < 2; i++)
+{
+  rainBuf[i] => rainGain[i] => dynos[i] => dac;
+  dynos[i].compress();
+  0.5 => rainGain[i].gain;
+  "rain_thunder.wav" => rainBuf[i].read;
+}
 
 // Reverb Settings
 0.1 => reverb.mix;
@@ -124,12 +138,26 @@ fun void soundLoop() {
 }
 
 fun void boop(int i) {
-    files[i] => buf[i].read;   // Load the current file
     Math.random2f(0.3, 1) => buf[i].gain;
     buf[i].pos(0);
     buf[i].play();
     holdLength::ms => now;
     0.0 => buf[i].gain;
+}
+
+fun void rainLoop() {
+  while( true )
+  {
+    spork ~ rain(0);
+    9::second => now;
+    spork ~ rain(1);
+    14::second => now;
+  }
+}
+
+fun void rain(int i) {
+  rainBuf[i].pos(0);
+  rainBuf[i].play();
 }
 
 fun void setPulse(int bpm)
@@ -138,6 +166,7 @@ fun void setPulse(int bpm)
 }
 
 spork ~ update();
+spork ~ rainLoop();
 
 // Wait for initial sync
 oin => now;
