@@ -6,6 +6,7 @@ SinOsc s => dac;
 440 => s.sfreq;
 
 1 => int d;
+0 => int count;
 1000 => int pulse;
 100 => int holdLength;
 
@@ -46,14 +47,23 @@ fun void update() {
   }
 }
 
-fun void boop() {
+fun void soundLoop() {
   while( true )
   {
-    0.5 => s.gain;
-    holdLength::ms => now;
-    0.0 => s.gain;
-    ((pulse * d) - holdLength)::ms => now;
+    if ( count == d )
+    {
+      0 => count;
+      spork ~ boop();
+    }
+    pulse::ms => now;
+    count + 1 => count;
   }
+}
+
+fun void boop() {
+  0.5 => s.gain;
+  holdLength::ms => now;
+  0.0 => s.gain;
 }
 
 fun void setPulse(int bpm)
@@ -69,7 +79,7 @@ oin => now;
 if ( oin.recv(msg) )
 {
   setPulse(msg.getInt(0));
-  spork ~ boop();
+  spork ~ soundLoop();
 }
 
 while( true )
