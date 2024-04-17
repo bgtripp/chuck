@@ -1,6 +1,7 @@
 // Test receiver for syncing time
 
-
+1000 => MAX_TEMPO;
+100 => MIN_TEMPO;
 // deadzone
 0 => float DEADZONE;
 // which joystick
@@ -70,6 +71,10 @@ for (int i; i < files.size(); i++) {
 
 // Reverb Settings
 0.1 => reverb.mix;
+
+// Define the min and max frequencies for the filter
+20.0 => float minFreq;
+20000.0 => float maxFreq;
 
 0 => int count;
 1000 => int pulse;
@@ -156,29 +161,17 @@ while( true )
     
     // gametrak left horrizontal will handle cutoff frequency
     // Read the Gametrak axis value (0 to 1)
-    (gt.axis[0] + 1) / 2=> float axisValue;
+    (gt.axis[3] + 1) / 2 => float left_pull;
     
-    // Map the axis value to the frequency range
-    (axisValue * (maxFreq - minFreq) + minFreq) => fs[1].freq;
+    // Map the left_pull value to the frequency range
+    setPulse((leftPull * (MAX_TEMPO - MINTEMPO)) + minFreq);
     
-    // note: gt.lastAxis[0]...gt.lastAxis[5] hold the previous XYZ values
+    // gametrak right horrizontal will handle cutoff frequency
+    (gt.axis[6] + 1) / 2 => float right_pull;
     
-    // Mapping pitches
-    gt.axis[3] => float four;
-    ((four + 1) / 2) * 8 => float degree;
-    Std.ftoi(degree) => int intDegree;
-    scale[intDegree] => int freq;
-    Std.mtof( ( 33 + Math.random2(0,1) * 12 + freq ) ) => voc.freq;
-    Math.random2f( 0.6, 0.8 ) => voc.noteOn;
-    100::ms => now;
+    // Map the left_pull value to the gain
+    right_pull => gain; 
     
-    CURRENTr + 1 => CURRENTr;
-    CURRENTc + 1 => CURRENTc;
-    6 %=> CURRENTr;
-    6 %=> CURRENTc;
-    6 %=> n;
-    // let time advance
-    1000::ms => now;
     
 }
 
