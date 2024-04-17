@@ -1,9 +1,22 @@
 // Test receiver for syncing time
 
-// patch
-SinOsc s => dac;
-.0 => s.gain;
-440 => s.sfreq;
+// Array of file path for first voice
+["Droplets_tuned/d.aif", "Droplets_tuned/a.aif", "Droplets_tuned/g.aif", "Droplets_tuned/high_c.aif"] @=> string files[];
+
+// Patch
+SndBuf buf => Gain feedback => Delay delay => NRev reverb => dac;
+0.0 => buf.gain;
+
+
+// Delay Settings
+.75::second => delay.max => delay.delay;
+// set feedback
+.5 => feedback.gain;
+// set effects mix
+.75 => delay.gain;
+
+// Reverb Settings
+0.1 => reverb.mix;
 
 1 => int d;
 0 => int count;
@@ -24,12 +37,7 @@ if( me.args() )
 
 if( me.args() > 1 )
 {
-  me.arg(1) => Std.atoi => s.sfreq;
-}
-
-if( me.args() > 2 )
-{
-  me.arg(2) => Std.atoi => d;
+  me.arg(1) => Std.atoi => d;
 }
 
 // create an address in the receiver, expect an int
@@ -61,9 +69,16 @@ fun void soundLoop() {
 }
 
 fun void boop() {
-  0.5 => s.gain;
-  holdLength::ms => now;
-  0.0 => s.gain;
+    files[fileIndex] => buf.read;   // Load the current file
+    1.0 => buf.gain;
+    buf.pos(0);
+    buf.play();
+    holdLength::ms => now;
+    0.0 => buf.gain;
+    
+    
+    // Increment and wrap the index
+    (fileIndex + 1) % files.size() => fileIndex;
 }
 
 fun void setPulse(int bpm)
