@@ -14,7 +14,7 @@ Hid trak;
 HidMsg msg;
 
 // open joystick 0, exit on fail
-//if( !trak.openJoystick( device ) ) me.exit();
+if( !trak.openJoystick( device ) ) me.exit();
 
 // print
 <<< "joystick '" + trak.name() + "' ready", "" >>>;
