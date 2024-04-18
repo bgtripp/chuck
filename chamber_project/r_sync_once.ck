@@ -1,7 +1,7 @@
 // Test receiver for syncing time
 
-500 => int MAX_TEMPO;
-50 => int MIN_TEMPO;
+1000 => int MAX_TEMPO;
+25 => int MIN_TEMPO;
 // deadzone
 0 => float DEADZONE;
 // which joystick
