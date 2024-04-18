@@ -162,22 +162,22 @@ fun void setPulse(int bpm)
 // spork ~ update();
 spork ~ rainLoop();
 spork ~ gametrak();
+spork ~ soundLoop();
 
 // Wait for initial sync
-oin => now;
+//oin => now;
 
-if ( oin.recv(oscmsg) )
-{
+//if ( oin.recv(oscmsg) ) <-- get rid of osc stuff for now
+//{
   // setPulse(oscmsg.getInt(0));
-  spork ~ soundLoop();
-}
+//  spork ~ soundLoop();
+//}
 
 // gametrack handling
 fun void gametrak()
 {
     while( true )
     {
-      <<< "running" >>>;
         // wait on HidIn as event
         trak => now;
         
@@ -226,7 +226,7 @@ fun void gametrak()
                 <<< "button", msg.which, "up" >>>;
             }
             // print 6 continuous axes -- XYZ values for left and right
-            <<< "axes:", gt.axis[0],gt.axis[1],gt.axis[2],
+            // <<< "axes:", gt.axis[0],gt.axis[1],gt.axis[2],
             gt.axis[3],gt.axis[4],gt.axis[5] >>>;
             
             // gametrak left horrizontal will handle cutoff frequency
