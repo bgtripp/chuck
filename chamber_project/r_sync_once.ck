@@ -35,9 +35,6 @@ class GameTrak
 // gametrack
 GameTrak gt;
 
-// spork control
-spork ~ gametrak();
-
 // Array of file path for first voice
 [
   "Droplets_tuned/Low_c.aif",
@@ -165,6 +162,7 @@ fun void setPulse(int bpm)
 
 // spork ~ update();
 spork ~ rainLoop();
+spork ~ gametrak();
 
 // Wait for initial sync
 oin => now;
@@ -175,14 +173,12 @@ if ( oin.recv(oscmsg) )
   spork ~ soundLoop();
 }
 
-while( true ) 
-  1::second => now;
-
 // gametrack handling
 fun void gametrak()
 {
     while( true )
     {
+      <<< "running" >>>;
         // wait on HidIn as event
         trak => now;
         
@@ -250,3 +246,6 @@ fun void gametrak()
         }
     }
 }
+
+while( true ) 
+  1::second => now;
