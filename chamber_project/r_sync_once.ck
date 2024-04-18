@@ -227,7 +227,7 @@ fun void gametrak()
             }
             // print 6 continuous axes -- XYZ values for left and right
             // <<< "axes:", gt.axis[0],gt.axis[1],gt.axis[2],
-            gt.axis[3],gt.axis[4],gt.axis[5] >>>;
+            // gt.axis[3],gt.axis[4],gt.axis[5] >>>;
             
             // gametrak left horrizontal will handle cutoff frequency
             // Read the Gametrak axis value (0 to 1)
