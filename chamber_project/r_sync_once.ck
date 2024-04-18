@@ -1,6 +1,6 @@
 // Test receiver for syncing time
 
-1000 => int MAX_TEMPO;
+500 => int MAX_TEMPO;
 100 => int MIN_TEMPO;
 // deadzone
 0 => float DEADZONE;
@@ -80,7 +80,7 @@ for (int i; i < 2; i++)
 {
   rainBuf[i] => rainGain[i] => dynos[i] => master;
   dynos[i].compress();
-  0.3 => rainGain[i].gain;
+  0.6 => rainGain[i].gain;
   "rain_thunder.wav" => rainBuf[i].read;
 }
 
@@ -137,7 +137,7 @@ fun void soundLoop() {
 }
 
 fun void boop(int i) {
-    Math.random2f(0.3, 1) => buf[i].gain;
+    Math.random2f(0.6, 1) => buf[i].gain;
     buf[i].pos(0);
     buf[i].play();
     holdLength::ms => now;
