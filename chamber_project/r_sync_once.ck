@@ -216,7 +216,7 @@ fun void gametrak()
             else if( msg.isButtonDown() )
             {
                 foot_switch + 1 => foot_switch;
-                d.size() % foot_switch => foot_switch; 
+                foot_switch % d.size() => foot_switch; 
                 <<< "button", msg.which, "down: ", foot_switch >>>;
                 
             }
