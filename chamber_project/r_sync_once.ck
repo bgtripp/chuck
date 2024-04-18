@@ -71,7 +71,7 @@ Dyno dynos[2];
 
 for (int i; i < 2; i++)
 {
-  rainBuf[i] => rainGain[i] => dynos[i] => dac;
+  rainBuf[i] => rainGain[i] => gain => dynos[i] => dac;
   dynos[i].compress();
   0.3 => rainGain[i].gain;
   "rain_thunder.wav" => rainBuf[i].read;
@@ -241,7 +241,7 @@ fun void gametrak()
             // gametrak right horrizontal will handle cutoff frequency
             gt.axis[5] => float right_freq;
             // Map the left_pull value to the gain
-            right_freq => gain.gain; 
+            right_freq * 1.5 => gain.gain; 
             right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
         }
     }
