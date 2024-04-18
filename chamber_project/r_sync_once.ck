@@ -64,7 +64,7 @@ for (int i; i < files.size(); i++) {
   0.1 => revs[i].mix;
 }
 // Multiples for each buf's polyrhythm
-[17, 13, 11, 9, 7, 5, 3, 2] @=> int d[];
+[2, 3, 5, 7, 9, 11, 13, 17] @=> int d[];
 // Switches for Droplets
 0 => int foot_switch;
 
