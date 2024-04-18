@@ -1,3 +1,3 @@
 pushd ~/slork/groups/2024/den/chamber_project/
-chuck -c6 r_sync_once.ck
+chuck -c6 r_sync_once.ck:1111
 popd
