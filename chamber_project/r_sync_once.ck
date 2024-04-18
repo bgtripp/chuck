@@ -47,22 +47,29 @@ GameTrak gt;
 ] @=> string files[];
 
 // Boop Patch
-SndBuf buf[files.size()] => Gain gain => Delay delay => NRev reverb => LPF lp => dac;
+// Universal gain
+Gain master;
+Delay delays[files.size()];
+NRev revs[files.size()];
+LPF lp;
+SndBuf buf[files.size()];
 for (int i; i < files.size(); i++) {
+  buf[i] => delays[i] => revs[i] => lp => master => dac;
+  .75 => delays[i].gain;
+  // Delay Settings
+  .75::second => delays[i].max => delays[i].delay;
   files[i] => buf[i].read;
   0.0 => buf[i].gain;
+  // Reverb Settings
+  0.1 => revs[i].mix;
 }
 // Multiples for each buf's polyrhythm
 [17, 13, 11, 9, 7, 5, 3, 2] @=> int d[];
 // Switches for Droplets
 0 => int foot_switch;
 
-// Delay Settings
-.75::second => delay.max => delay.delay;
 // set universal gain
-.5 => gain.gain;
-// set effects mix
-.75 => delay.gain;
+.5 => master.gain;
 
 // Rain Patch
 SndBuf rainBuf[2];
@@ -71,14 +78,11 @@ Dyno dynos[2];
 
 for (int i; i < 2; i++)
 {
-  rainBuf[i] => rainGain[i] => gain => dynos[i] => dac;
+  rainBuf[i] => rainGain[i] => dynos[i] => master;
   dynos[i].compress();
   0.3 => rainGain[i].gain;
   "rain_thunder.wav" => rainBuf[i].read;
 }
-
-// Reverb Settings
-0.1 => reverb.mix;
 
 // Define the min and max frequencies for the filter
 20.0 => float minFreq;
@@ -241,7 +245,7 @@ fun void gametrak()
             // gametrak right horrizontal will handle cutoff frequency
             gt.axis[5] => float right_freq;
             // Map the left_pull value to the gain
-            right_freq * 1.5 => gain.gain; 
+            right_freq * 1.5 => master.gain; 
             right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
         }
     }
