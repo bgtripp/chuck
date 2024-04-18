@@ -122,6 +122,7 @@ fun void soundLoop() {
     {
       if ( foot_switch > i && count % d[i] == 0)
       {
+        <<< "Debug: ", i, " played." >>>;
         spork ~ boop(i);
       }
     }
@@ -216,7 +217,7 @@ fun void gametrak()
             {
                 foot_switch + 1 => foot_switch;
                 d.size() % foot_switch => foot_switch; 
-                <<< "button", msg.which, "down" >>>;
+                <<< "button", msg.which, "down: ", foot_switch >>>;
                 
             }
             
