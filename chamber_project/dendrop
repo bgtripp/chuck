@@ -1,0 +1,3 @@
+pushd ~/slork/groups/2024/den/
+chuck -c6 r_sync_once.ck
+popd
