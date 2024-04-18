@@ -126,7 +126,6 @@ fun void soundLoop() {
     {
       if ( foot_switch > i && count % d[i] == 0)
       {
-        <<< "Debug: ", i, " played." >>>;
         spork ~ boop(i);
       }
     }
@@ -245,7 +244,7 @@ fun void gametrak()
             // gametrak right horrizontal will handle cutoff frequency
             gt.axis[5] => float right_freq;
             // Map the left_pull value to the gain
-            right_freq * 1.2 => master.gain; 
+            right_freq => master.gain; 
             right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
         }
     }
