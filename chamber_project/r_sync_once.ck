@@ -231,14 +231,14 @@ fun void gametrak()
             
             // gametrak left horrizontal will handle cutoff frequency
             // Read the Gametrak axis value (0 to 1)
-            (gt.axis[3] + 1) / 2 => float left_pull;
+            (gt.axis[2] + 1) / 2 => float left_pull;
             
             // Map the left_pull value to the frequency range
             Std.ftoi(left_pull * (MAX_TEMPO - MIN_TEMPO) + MIN_TEMPO) => int intpull;
             setPulse(intpull);
             
             // gametrak right horrizontal will handle cutoff frequency
-            (gt.axis[6] + 1) / 2 => float right_freq;
+            (gt.axis[5] + 1) / 2 => float right_freq;
             // Map the left_pull value to the gain
             right_freq => gain.gain; 
             right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
