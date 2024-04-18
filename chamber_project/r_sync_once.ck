@@ -38,8 +38,6 @@ GameTrak gt;
 // spork control
 spork ~ gametrak();
 
-
-
 // Array of file path for first voice
 [
   "Droplets_tuned/Low_c.aif",
@@ -165,7 +163,7 @@ fun void setPulse(int bpm)
   60000 / bpm => pulse;
 }
 
-spork ~ update();
+// spork ~ update();
 spork ~ rainLoop();
 
 // Wait for initial sync
@@ -173,7 +171,7 @@ oin => now;
 
 if ( oin.recv(oscmsg) )
 {
-  setPulse(oscmsg.getInt(0));
+  // setPulse(oscmsg.getInt(0));
   spork ~ soundLoop();
 }
 
