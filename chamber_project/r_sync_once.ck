@@ -245,7 +245,7 @@ fun void gametrak()
             // gametrak right horrizontal will handle cutoff frequency
             gt.axis[5] => float right_freq;
             // Map the left_pull value to the gain
-            right_freq * 1.5 => master.gain; 
+            right_freq * 1.2 => master.gain; 
             right_freq * (maxFreq - minFreq) + minFreq => lp.freq;
         }
     }
