@@ -7,7 +7,6 @@
 // which joystick
 0 => int device;
 // get from command line
-if( me.args() ) me.arg(0) => Std.atoi => device;
 
 // HID objects
 Hid trak;
