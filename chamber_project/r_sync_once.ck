@@ -1,7 +1,6 @@
 // Test receiver for syncing time
 
-1000 => int MAX_TEMPO;
-25 => int MIN_TEMPO;
+ 
 // deadzone
 0 => float DEADZONE;
 // which joystick
@@ -104,21 +103,6 @@ if( me.args() )
   <<< "Error: must specify port." >>>;
 }
 
-// create an address in the receiver, expect an int
-oin.addAddress( "/sync, i" );
-
-fun void update() {
-  while( true )
-  {
-    oin => now;
-
-    while ( oin.recv(oscmsg) )
-    {
-      setPulse(oscmsg.getInt(0));
-    }
-  }
-}
-
 fun void soundLoop() {
   while( true )
   {
@@ -166,7 +150,6 @@ fun void setPulse(int bpm)
 // spork ~ update();
 spork ~ rainLoop();
 spork ~ gametrak();
-spork ~ soundLoop();
 
 // Wait for initial sync
 //oin => now;
