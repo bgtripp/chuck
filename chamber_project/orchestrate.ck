@@ -19,9 +19,19 @@ if ( me.args() )
 }
 
 7777 => int port;
+6 => int hive_size;
 
 // Multiples for each instrument's polyrhythm
-[2, 3, 5, 7, 9, 11, 13, 17] @=> int d[];
+[
+  2, // low C
+  3, // D
+  5, // E
+  7, // F
+  9, // G
+  11, // A
+  13, // B
+  17 // high C
+] @=> int d[];
 0 => int foot_switch;
 1000 => int pulse;
 1000 => int MAX_TEMPO;
@@ -49,7 +59,7 @@ fun void droop()
     {
       if ( foot_switch > i && count % d[i] == 0)
       {
-        sendCommand( 0, i );
+        sendCommand( i % hive_size, i );
       }
     }
 
@@ -82,7 +92,7 @@ fun void keeb()
           }
           else if ( msg.which == 44 )
           {
-            sendCommand( 0, 100 );
+            sendCommand( 100, 100 );
           }
           else if ( msg.which == 82 )
           {
@@ -157,6 +167,13 @@ fun void gametrak()
       // Map the left_pull value to the tempo range
       Std.ftoi( left_pull * 1.5 * (MAX_TEMPO - MIN_TEMPO) + MIN_TEMPO ) => int intpull;
       setPulse( intpull );
+
+      // gametrack right horizontal will control thunder
+      gt.axis[5] => float right_pull;
+      if ( right_pull > 0.5 )
+      {
+        sendCommand( 100, 100 );
+      }
     }
   }
 }

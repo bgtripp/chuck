@@ -1,6 +1,12 @@
 // HIVE dendrop
 
 0 => int myId;
+if ( me.args() )
+{
+  me.arg(0) => Std.atoi => myId;
+}
+// Special ID for all stations
+100 => int all;
 
 [
   "Droplets_tuned/Low_c.aif",
@@ -33,7 +39,7 @@ for (int i; i < files.size(); i++) {
 // Rain patch
 SndBuf rainBuf[2];
 Gain rainGain;
-0.1 => rainGain.gain;
+0.0 => rainGain.gain;
 
 for (int i; i < 2; i++)
 {
@@ -42,20 +48,39 @@ for (int i; i < 2; i++)
 }
 
 // Thunder patch
-SndBuf thunder;
 Gain thunderGain;
 0.0 => thunderGain.gain;
-thunder => thunderGain => dac;
-"thunder.wav" => thunder.read;
+0 => int thunderActive;
+1 => int thunderCooldown;
+
+fun thunder()
+{
+  SndBuf thunder;
+  thunder => thunderGain => dac;
+  "thunder.wav" => thunder.read;
+  0.8 => thunderGain.gain;
+  thunder.pos(0);
+  thunder.play();
+  19::second => now;
+}
+
+fun thunderState()
+{
+  1 => thunderActive;
+  thunderCooldown::second => now;
+  0 => thunderActive;
+}
 
 fun play( int i )
 {
   if ( i == 100 )
   {
-    0.8 => thunderGain.gain;
-    thunder.pos(0);
-    thunder.play();
-    19::second => now;
+    if ( thunderActive == 0 )
+    {
+      spork ~ thunder();
+      spork ~ thunderState();
+      19::second => now;
+    }
   }
   else
   {
@@ -95,7 +120,7 @@ fun listenOrchestrate()
 
     while ( oin.recv( msg ) )
     {
-      if ( msg.getInt(0) == 0 || msg.getInt(0) == myId )
+      if ( msg.getInt(0) == all || msg.getInt(0) == myId )
       {
         <<< "Playing ", msg.getInt(1) >>>;
         spork ~ play( msg.getInt(1) );
@@ -119,13 +144,14 @@ fun listenSoundcraft()
     {
       if ( msg.getInt(0) == 0 || msg.getInt(0) == myId )
       {
-        <<< "Setting ", msg.getInt(1),  " to ", msg.getFloat(2) >>>;
-        if ( msg.getInt(1) == 0 ) 
+        if ( msg.getInt(1) == 0 && msg.getFloat(2) != dropGain.gain() ) 
         {
-          msg.getInt(2) => dropGain.gain;
+          <<< "Setting dropGain to ", msg.getFloat(2) >>>;
+          msg.getFloat(2) => dropGain.gain;
         }
-        else if ( msg.getInt(1) == 1 )
+        else if ( msg.getInt(1) == 1 && msg.getFloat(2) != rainGain.gain() )
         {
+          <<< "Setting rainGain to ", msg.getFloat(2) >>>;
           msg.getFloat(2) => rainGain.gain;
         }
       }
