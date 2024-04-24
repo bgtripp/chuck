@@ -1,4 +1,4 @@
-// ORCHESTRATE dendrop
+// SOUNDCRAFT dendrop
 
 "224.0.0.1" => string hostname;
 if ( me.args() )
@@ -19,42 +19,37 @@ if ( me.args() )
 }
 
 7777 => int port;
-
-// Multiples for each instrument's polyrhythm
-[2, 3, 5, 7, 9, 11, 13, 17] @=> int d[];
-0 => int foot_switch;
-1000 => int pulse;
-1000 => int MAX_TEMPO;
-25 => int MIN_TEMPO;
+500 => int pulse;
+// Attribute for gain, LPF, 
+float attributes[2];
+1 => int MAX_DROP_GAIN;
+0 => int MIN_DROP_GAIN;
+1 => int MAX_RAIN_GAIN;
+0 => int MIN_RAIN_GAIN;
 
 OscOut xmit;
 xmit.dest( hostname, port );
 
-fun void sendCommand( int receiver, int instrument )
+fun void sendCommand( int receiver, int attribute, float value )
 {
-  <<< "Sending /orchestrate ", receiver, instrument >>>;
-  xmit.start( "/orchestrate" );
+  <<< "Sending /soundcraft ", receiver, attribute, value >>>;
+  xmit.start( "/soundcraft" );
   receiver => xmit.add;
-  instrument => xmit.add;
+  attribute => xmit.add;
+  value => xmit.add;
   xmit.send();
 }
- 
-fun void droop() 
-{
-  0 => int count;
 
+fun void commandLoop()
+{
   while ( true )
   {
-    for (int i; i < d.size(); i++)
+    for ( int i; i < attributes.size(); i++ )
     {
-      if ( foot_switch > i && count % d[i] == 0)
-      {
-        sendCommand( 0, i );
-      }
+      sendCommand( 0, i, attributes[i]);
     }
 
     pulse::ms => now;
-    count + 1 => count;
   }
 }
 
@@ -62,7 +57,7 @@ fun void keeb()
 {
   Hid hi;
   HidMsg msg;
-  0 => int device;
+  1 => int device;
   if( !hi.openKeyboard( device ) ) me.exit();
   <<< "keyboard '" + hi.name() + "' ready", "" >>>;
 
@@ -78,19 +73,19 @@ fun void keeb()
         {
           if ( msg.which == 40 )
           {
-            ( foot_switch + 1 ) % d.size() => foot_switch;
+            Math.min(Math.max(attributes[0] + 0.1, MIN_DROP_GAIN), MAX_DROP_GAIN) => attributes[0];
           }
           else if ( msg.which == 44 )
           {
-            sendCommand( 0, 100 );
+            Math.min(Math.max(attributes[0] - 0.1, MIN_DROP_GAIN), MAX_DROP_GAIN) => attributes[0];
           }
           else if ( msg.which == 82 )
           {
-            Math.max( pulse - 100, 10) => pulse;
+            Math.min(Math.max(attributes[1] + 0.1, MIN_RAIN_GAIN), MAX_RAIN_GAIN) => attributes[1];
           }
           else if ( msg.which == 81 )
           {
-            pulse + 100 => pulse;
+            Math.min(Math.max(attributes[1] - 0.1, MIN_DROP_GAIN), MAX_DROP_GAIN) => attributes[1];
           }
         }
     }
@@ -144,29 +139,20 @@ fun void gametrak()
         }
       }
       
-      else if( msg.isButtonDown() )
-      {
-          ( foot_switch + 1 ) % d.size() => foot_switch;   
-      }
-
-      
-      // gametrak left horrizontal will handle tempo
-      // Read the Gametrak axis value (0 to 1)
+      // gametrak left horrizontal will handle drop gain
       gt.axis[2] => float left_pull;
       
-      // Map the left_pull value to the tempo range
-      Std.ftoi( left_pull * 1.5 * (MAX_TEMPO - MIN_TEMPO) + MIN_TEMPO ) => int intpull;
-      setPulse( intpull );
+      // Map the left_pull value to the gain range
+      Std.ftoi( left_pull * 1.5 * (MAX_DROP_GAIN - MIN_DROP_GAIN) + MIN_DROP_GAIN ) => attributes[0];
+
+      // gametrak right horizontal will handle rain gain
+      gt.axis[5] => float right_pull;
+      Std.ftoi( left_pull * 1.5 * (MAX_DROP_GAIN - MIN_DROP_GAIN) + MIN_DROP_GAIN ) => attributes[1];
     }
   }
 }
 
-fun void setPulse(int bpm)
-{
-  60000 / bpm => pulse;
-}
-
-spork ~ droop();
+spork ~ commandLoop();
 
 while ( true )
   1::second => now;

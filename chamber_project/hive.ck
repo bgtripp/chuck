@@ -18,10 +18,12 @@ Delay delays[files.size()];
 NRev revs[files.size()];
 LPF lp;
 SndBuf buf[files.size()];
+Gain dropGain;
 
 for (int i; i < files.size(); i++) {
-  buf[i] => delays[i] => revs[i] => lp => dac;
+  buf[i] => dropGain => delays[i] => revs[i] => lp => dac;
   .75 => delays[i].gain;
+  0.5 => dropGain.gain;
   .75::second => delays[i].max => delays[i].delay;
   files[i] => buf[i].read;
   0.0 => buf[i].gain;
@@ -80,7 +82,7 @@ fun void rain(int i) {
   rainBuf[i].play();
 }
 
-fun listen()
+fun listenOrchestrate()
 {
   OscIn oin;
   OscMsg msg;
@@ -95,15 +97,45 @@ fun listen()
     {
       if ( msg.getInt(0) == 0 || msg.getInt(0) == myId )
       {
-        <<< "Playing: ", msg.getInt(1) >>>;
+        <<< "Playing ", msg.getInt(1) >>>;
         spork ~ play( msg.getInt(1) );
       }
     }
   }
 }
 
+fun listenSoundcraft()
+{
+  OscIn oin;
+  OscMsg msg;
+  7777 => oin.port;
+  oin.addAddress( "/soundcraft, i i f" );
+
+  while ( true )
+  {
+    oin => now;
+
+    while ( oin.recv( msg ) )
+    {
+      if ( msg.getInt(0) == 0 || msg.getInt(0) == myId )
+      {
+        <<< "Setting ", msg.getInt(1),  " to ", msg.getFloat(2) >>>;
+        if ( msg.getInt(1) == 0 ) 
+        {
+          msg.getInt(2) => dropGain.gain;
+        }
+        else if ( msg.getInt(1) == 1 )
+        {
+          msg.getFloat(2) => rainGain.gain;
+        }
+      }
+    }
+  }
+}
+
 spork ~ rainLoop();
-spork ~ listen();
+spork ~ listenOrchestrate();
+spork ~ listenSoundcraft();
 
 while ( true )
   1::second => now;
