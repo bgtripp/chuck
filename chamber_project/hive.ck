@@ -19,6 +19,18 @@ if ( me.args() )
   "Droplets_tuned/high_c.aif"
 ] @=> string files[];
 
+
+[
+  "rounded_tuned/low_c.aif",
+  "rounded_tuned/d.aif",
+  "rounded_tuned/e.aif",
+  "rounded_tuned/f.aif",
+  "rounded_tuned/g.aif",
+  "rounded_tuned/a.aif", 
+  "rounded_tuned/b.aif",
+  "rounded_tuned/high_c.aif"
+] @=> string rounded[];
+
 // Droplet patch
 Delay delays[files.size()];
 NRev revs[files.size()];
