@@ -21,7 +21,7 @@ if ( me.args() )
 7777 => int port;
 6 => int hive_size;
 
-// Multiples for each instrument's polyrhythm
+// Multiples for each drop's polyrhythm
 [
   2, // low C
   3, // D
@@ -32,6 +32,19 @@ if ( me.args() )
   13, // B
   17 // high C
 ] @=> int d[];
+
+// Multiples for each round's polyrhythm
+[
+  20, // low C
+  16, // D
+  24, // E
+  18, // F
+  40, // G
+  36, // A
+  28, // B
+  44, // high C
+] @=> int r[];
+
 0 => int foot_switch;
 1000 => int pulse;
 1000 => int MAX_TEMPO;
@@ -60,6 +73,14 @@ fun void droop()
       if ( foot_switch > i && count % d[i] == 0)
       {
         sendCommand( i % hive_size, i );
+      }
+    }
+
+    for (int i; i < r.size(); i++)
+    {
+      if ( foot_switch > i && count % r[i] == 0)
+      {
+        sendCommand( (d.size() + i) % hive_size, d.size() + i );
       }
     }
 
